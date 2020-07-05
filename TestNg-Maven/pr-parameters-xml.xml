@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="TestNGPractice">
+	<test name="Parameterization-xml">
+	<parameter name="firstname" value="Pariss"></parameter>
+	<parameter name="lastname" value="Athena"></parameter>
+		<classes>
+			<class name="testng.practice.ParametrizationXML" />
+		</classes>
+	</test>
+</suite>

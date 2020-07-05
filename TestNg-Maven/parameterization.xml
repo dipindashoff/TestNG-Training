@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+
+<suite name="Suite1" verbose="1">
+	<test name="Regression1">
+		<parameter name="URL" value="https://bow-chicka-bow-wow.com"></parameter>
+		<parameter name="Username" value="abc"></parameter>
+		<parameter name="Password" value="123"></parameter>
+
+		<classes>
+			<class name="testng.files.Parameterization" />
+		</classes>
+	</test>
+</suite>

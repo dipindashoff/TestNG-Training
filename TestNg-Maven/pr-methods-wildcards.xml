@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="TestNGPractice">
+	<test name="Filter-By-Wildcard">
+		<classes>
+			<class name="testng.practice.RunMethodsByWildcard">
+				<methods>
+					<include name="Sun.*"></include>
+				</methods>
+			</class>
+		</classes>
+	</test>
+</suite>

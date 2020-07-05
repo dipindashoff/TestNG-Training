@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="TestNGPractice">
+	<listeners>
+		<listener class-name="testng.practice.ITestListenerImpl"></listener>
+	</listeners>
+	<test name="Logging-Listener">
+		<classes>
+			<class name="testng.practice.LoggingListenerTest" />
+		</classes>
+	</test>
+</suite>

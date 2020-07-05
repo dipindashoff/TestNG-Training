@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="TestNGPractice">
+	<test name="Groups-Filter-Wildcard">
+		<groups>
+			<run>
+				<exclude name="Apple.*"></exclude>
+			</run>
+		</groups>
+		<classes>
+			<class name="testng.practice.GroupsOfGroups" />
+		</classes>
+	</test>
+</suite>
