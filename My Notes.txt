@@ -1,0 +1,593 @@
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																TESTNG TUTORIAL
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Key Concepts
+Annotations
+TestNG XML
+ - Inlcude & Exclude
+ - Package level execution
+ - Grouping
+ - Parameterization
+  i. Using testng.xml
+  ii. Using @DataProvider annotation
+Listeners
+  i. Logging listeners
+Class Level Annotations
+Ignoring Tests
+Parallel tests, classes & methods
+Re-running failed test cases
+  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																KEY CONCEPTS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ SUITE:
+ Combination of Tests like 'April-Release-2019', or a 'Regression-Suite'.
+ A suite is represented by one XML file. It can contain one or more tests and is defined by the <suite> tag in testng.xml.
+ 
+ TEST:
+ Contains a group of classes (& methods) to test a particular 'feature' in the application.
+ A test is represented by <test> and can contain one or more TestNG classes.
+ A suite can contain multiple Tests.
+ 
+ CLASS:
+ Each page is represented by a class containing all the methods to test that page(like in Page Object Model). 
+ A TestNG class is a Java class that contains at least one TestNG annotation - it is represented by a <class> tag and can contain one or more test methods.
+ A 'Test' can contain multiple classes.
+ 
+ METHOD:
+ A test method is a Java method annotated by @Test in your source code representing a test case.
+ 
+ A test is considered successful if it completed without throwing any exception.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																ANNOTATIONS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ @BeforeSuite: The annotated method will be run before all tests in this suite have run.
+ @AfterSuite: The annotated method will be run after all tests in this suite have run.
+ @BeforeTest: The annotated method will be run before any test method belonging to the classes inside the <test> tag is run.
+ @AfterTest: The annotated method will be run after all the test methods belonging to the classes inside the <test> tag have run.
+ @BeforeGroups: The list of groups that this configuration method will run before. This method is guaranteed to run shortly before the first test method that belongs to any of these groups is invoked.
+ @AfterGroups: The list of groups that this configuration method will run after. This method is guaranteed to run shortly after the last test method that belongs to any of these groups is invoked.
+ @BeforeClass: The annotated method will be run before the first test method in the current class is invoked.
+ @AfterClass: The annotated method will be run after all the test methods in the current class have been run.
+ @BeforeMethod: The annotated method will be run before each test method.
+ @AfterMethod: The annotated method will be run after each test method.
+ @Test: 
+  An @Test represents a method to validate a test case.
+  
+  TIP: 
+  Pre-populate annotations:
+  Create a TestNG class from Eclipse: New->Other->TestNG Class->Select annotations.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																@TEST PARAMETERS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+PARAMETERS: 
+	ORDER:
+	Tests are run in alphabetical order if multiple @Test methods are present in a class.
+ -->PRIORITY:
+		@Test method with the lowest priority value will run first.
+		If priorities are the same, TestNG runs the test methods in alphabetical order.
+		E.g.:
+			@Test(priority = 0)
+			@Test(priority = 1)
+			@Test(priority = 3)
+
+ -->DESCRIPTION:
+		@Test(This test prints an employee's name)
+		E.g. In Console,
+		    PASSED:  test1
+					 This test prints an employee's name
+			PASSED:  test2
+			PASSED:  test3
+
+
+RETURN VALUE: 
+	Methods annotated with @Test that happen to return a value will be ignored. Since TestNG follows best practices for unit testing, which means a unit test method should not have a return value. This is the reason a @Test annotated method which is returning a value is ignored by TestNG default run behaviour.
+	To force TestNG to include test methods which are returning values to be included in normal run, set allow-return-values as true at suite level.
+	Example:
+	 <suite name="Suite1"  allow-return-values="true">
+		<test name="Regression1">
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+															UNDERSTANDING TESTNG XML
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Why testng.xml?
+ testng.xml can run multiple tests at once rather than running methods from one class.
+ Also, you can choose what methods to run, filter by method names, group methods... by running tests from XML.
+
+Generating a testng.xml:
+ Right click on class name “MyFirstTest.java” and navigate “TestNg–>Convert to TestNG->Opens a window for generating testng.xml. Click [Generate].
+
+Here is an example testng.xml file:
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="SmokeTests" verbose="1" >
+  <test name="LoginScreen" >
+    <classes>
+       <class name="LoginScreenTest" />
+    </classes>
+  </test>
+ 
+  <test name="HomeScreen">
+    <classes>
+      <class name="test.sample.HomeScreenMenu"/>
+      <class name="test.sample.HomeScreenLayout"/>
+    </classes>
+  </test>
+</suite>
+
+ --> TestNG will look at all the classes in the package test.sample and will retain only classes that have TestNG annotations.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+															INCLUDE & EXCLUDE METHODS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+INCLUDE/EXCLUDE METHODS 
+ INCLUDE: Run only this method inside the <include> tag.
+ EXCLUDE: Do not run this method inside the <exclude> tag.
+ Example:
+ <test name="HomeScreen">
+    <classes>
+      <class name="test.sample.HomeScreenMenu">
+	  <methods>
+			<exclude>
+				name="method3"				------> method3 in this class file will be skipped.
+			</exclude>
+		</methods>
+	  </class>
+      <class name="test.sample.HomeScreenLayout">
+		<methods>
+			<include>
+				name="method1"				------> Only method1 in this class file will be run.
+			</include>
+		</methods>
+	  </class>
+
+ WILDCARDS
+ Say class HomeScreenCategories {
+		public void Laptop_Sort(){}
+		public void Laptop_Filter(){}
+		public void Mobile_Sort(){}
+		public void Mobile_Filter(){}
+		...}
+ Run only Laptop methods:
+  All methods to validate 'Laptop' category should have test method name as 'Laptop_something' for the wildcard to work. 
+  Here the wildcard ".*" is similar to a "%".   
+ 
+	  <class name="test.sample.HomeScreenCategories">
+		<methods>
+			<include>
+				name="Laptop.*"				------> Only the methods that start with 'Laptop' will be run.
+			</include>								Here the wildcard ".*" similar to a "%".
+		</methods>
+	  </class>
+    </classes>
+  </test>
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+															PACKAGE LEVEL EXECUTION
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ You can specify package names instead of class names.
+  <suite name="SmokeSuite">
+	<test name="Release1" >
+		<packages>
+			<package name="com.amazon.addtocart"></package>  ----> Run all tests inside this package.
+		</packages>
+	</test>
+  </suite>
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+																	GROUPING
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+TestNG allows you to perform sophisticated groupings of test methods.
+ 
+ Example:
+ public class Test1 {
+  @Test(groups = { "functest", "checkintest" })
+  public void testMethod1() {
+  }
+ 
+  @Test(groups = {"functest", "checkintest"} )
+  public void testMethod2() {
+  }
+ 
+  @Test(groups = { "functest" })
+  public void testMethod3() {
+  }
+ }
+
+  Note: 
+   Two categories of tests: 
+	- Check-in tests 
+	- Functional tests
+   Here, check-in tests are a subset of functional tests.
+
+ Run all 'functest' methods: 
+	<test name="Test1">
+	  <groups>
+		<run>
+		  <include name="functest"/>
+		</run>
+	  </groups>
+	  <classes>
+		<class name="example1.Test1"/>
+	  </classes>
+	</test>
+  --> Invoking it with checkintest will only run testMethod1() and testMethod2().
+  
+  REGULAR EXPRESSIONS:
+  Example:
+   public class Test1 {
+	  @Test(groups = { "windows.checkintest" })
+	  public void testWindowsOnly() {
+	  }
+	 
+	  @Test(groups = {"linux.checkintest"} )
+	  public void testLinuxOnly() {
+	  }
+	 
+	  @Test(groups = { "windows.functest" )
+	  public void testWindowsToo() {
+	  }
+	}
+    
+  To launch only the Windows methods:
+	<test name="Test1">
+	  <groups>
+		<run>
+		  <include name="windows.*"/>
+		</run>
+	  </groups>
+	 
+	  <classes>
+		<class name="example1.Test1"/>
+	  </classes>
+	</test>
+ 
+  GROUPS OF GROUPS
+  ----------------
+	Groups can also include other groups. These groups are called "MetaGroups". 
+	For example, you might want to define a group "all" that includes both "checkintest" and "functest".
+ 
+	 <test name="Regression1">
+	  <groups>  
+		<define name="all">
+		  <include name="functest"/>
+		  <include name="checkintest"/>
+		</define>
+	  
+		<run>
+		  <include name="all"/>
+		</run>
+	  </groups>
+	  
+	  <classes>
+		<class name="test.sample.Test1"/>
+	  </classes>
+	 </test>
+
+ PARTIAL GROUPS
+ --------------
+ You can define groups at the class level and then add groups at the method level:
+	
+	@Test(groups = { "checkin-test" })
+	public class All {
+	 
+	  @Test(groups = { "func-test" )
+	  public void method1() { ... }
+	 
+	  public void method2() { ... }
+	}
+	
+	In this class, method2() is part of the group "checkin-test", which is defined at the class level, while method1() belongs to both "checkin-test" and "func-test".
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+														PARAMETERIZATION USING TESTNG.XML
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+PARAMETERS:
+ 1) PARAMETERS FROM testng.xml:
+	--------------------------
+	 If you are using simple values for your parameters, you can specify them in your testng.xml:
+	
+		@Parameters({ "first-name" })
+		@Test
+		public void testSingleString(String firstName) {
+		  System.out.println("firstName: " + firstName);
+		}
+	
+	In this code, we specify that the parameter firstName of your Java method should receive the value of the XML parameter called first-name.  This XML parameter is defined in testng.xml:
+	
+		<suite name="My suite">
+		  <parameter name="first-name"  value="Cedric"/>
+		  <test name="Simple example">
+	
+	OPTIONAL
+	Parameters can be declared optional with the Optional annotation:
+		@Parameters("db")
+		@Test
+		public void testNonExistentParameter(@Optional("mysql") String db) { ... }
+	
+	If no parameter named "db" is found in your testng.xml file, your test method will receive the default value specified inside the @Optional annotation: "mysql".
+	
+ NOTE:
+  i) The XML parameters are mapped to the Java parameters in the same order as they are found in the annotation, and TestNG will issue an error if the numbers dont't match.
+  ii) Parameters are scoped. In testng.xml, you can declare them either under a <suite> tag or under <test>. If two parameters have the same name, it's the one defined in <test> that has precedence. This is convenient if you need to specify a parameter applicable to all your tests and override its value only for certain tests.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+														PARAMETERIZATION USING DATAPROVIDERS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 2) PARAMETERS WITH DATAPROVIDERS:
+	-----------------------------
+	 You can use a Data Provider if you need to pass complex parameters, or parameters that need to be created from Java (complex objects, objects read from a property file or a database, etc...).
+	 
+	--> A Data Provider is a method on your class that returns an array of array of objects.  This method is annotated with @DataProvider.
+	--> A @Test method specifies its Data Provider with the dataProvider attribute.  This name must correspond to a method on the same class annotated with @DataProvider(name="...") with a matching name.
+	--> An array of array of objects (Object[][]) where the first dimension's size is the number of times the test method will be invoked and the second dimension size contains an array of objects that must be compatible with the parameter types of the test method.
+	--> If a DataProvider has no name, you can call it by its method name.
+		
+		Example 1:
+		// This method will provide data to any test method that declares its Data Provider as "test1"
+		@DataProvider(name = "test1")
+		public Object[][] createData1() {
+		 return new Object[][] {
+		   { "Cedric", new Integer(36) },
+		   { "Anne", new Integer(37)},
+		 };
+		}
+
+		// This test method declares that its data should be supplied by the Data Provider named "test1"
+		@Test(dataProvider = "test1")
+		public void verifyData1(String n1, Integer n2) {
+		 System.out.println(n1 + " " + n2);
+		}
+
+		OUTPUT:
+		Cedric 36
+		Anne 37
+		
+		Example 2: 
+		@DataProvider
+		public Object[][] getHashMap() {...}
+		
+		@Test(dataProvider = "getHashMap")
+		public void testDataProvider2(Map<String, String> map) {...}
+ 
+	--> By default, the data provider will be looked for in the current test class or one of its base classes. If you want to put your data provider in a different class, it needs to be a static method or a class with a non-arg constructor, and you specify the class where it can be found in the dataProviderClass attribute:
+
+		public class StaticProvider {
+		  @DataProvider(name = "create")
+		  public static Object[][] createData() {
+			return new Object[][] {
+			  new Object[] { new Integer(42) }
+			};
+		  }
+		}
+		 
+		public class MyTest {
+		  @Test(dataProvider = "create", dataProviderClass = StaticProvider.class)
+		  public void test(Integer n) {
+			// ...
+		  }
+		}
+	
+	--> Data providers can run in parallel with the attribute parallel:
+		
+		@DataProvider(parallel = true)
+		// ...
+	
+	ISSUE:
+	DataProvider is not an annotation type
+	 - Its because your class name is 'DataProvider'. Please change the class name to something else (which will be of more meaning) and try to import DataProvider from testng.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																	LISTENERS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+TestNG Listeners
+ - There are several interfaces that allow you to modify TestNG's behavior. These interfaces are broadly called "TestNG Listeners". 
+ - When you implement one of these interfaces, you can let TestNG know about it by using <listeners> in your testng.xml file or the @Listeners annotation on any of your test classes.
+ 
+ Specifying listeners with testng.xml:
+		 <suite>
+		  <listeners>
+			<listener class-name="com.example.MyListener" />
+			<listener class-name="com.example.MyMethodInterceptor" />
+		  </listeners>
+		  ...
+  
+  or in Java:
+	@Listeners({ com.example.MyListener.class, com.example.MyMethodInterceptor.class })
+	public class MyTest {
+	  // ...
+	}
+
+
+LOGGING LISTENERS:
+ Listeners implement the interface org.testng.ITestListener and are notified in real time of when a test starts, passes, fails, etc...
+ 
+ 1. Create a class that implements ITestListener. Say ITestListenerImpl.
+ 2. Add all unimplemented methods
+	Edit: Add all Overide/Implement methods.
+	The methods that were earlier unimplemented are now 'default' methods.
+ 3. Add any changes to these methods. Say, when test case is passed, print the test case name (i.e method name)
+ 4. Now let your test class, say class ListenersTest extends ITestListenerImpl.
+ 5. Add the 'ITestListenerImpl' under <listeners> tag to testng.xml.
+    
+	
+ --> 1, 2, & 3. 
+		public class ITestListenerImpl implements ITestListener{
+			@Override
+			public void onTestSuccess(ITestResult result) {
+				System.out.println(":-D " + result.getName());
+			}
+		}
+ --> 4. 
+		public class ListenersTest extends ITestListenerImpl{
+			@Test(priority = 0)
+			public void testPass() {
+				assert "Dipin".equals("Dipin") : "Hippeee";
+			}
+		
+			@Test(priority = 1)
+			public void testFail() {
+				assert "Dipin".equals("Deesha") : "Oh Sh!t";
+			}	
+		}
+ --> 5. 
+		<suite name="Suite1" verbose="1">
+			<listeners>
+				<listener class-name="testng.files.ITestListenerImpl"></listener>
+			</listeners>
+			<test name="Regression1">
+			...
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																	TEST RESULTS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Success, failure and assert:
+  - A test is considered successful if it completed without throwing any exception.
+  - Your test methods can fail when it throws an exception, or when the assertion fails (using the Java "assert" keyword). 
+  Example:
+	@Test
+	public void verifyLastName() {
+	  assert "Beust".equals(m_lastName) : "Expected name Beust, for" + m_lastName;
+	}
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																CLASS LEVEL ANNOTATIONS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ - The effect of a class level @Test annotation is to make all the public methods of this class to become test methods even if they are not annotated.
+ - The @Test annotation can be put on a class instead of a test method.
+	 Example:
+		@Test
+		public class Test1 {
+			public void test1() {
+			}
+		 
+			public void test2() {
+			}
+		}
+ - You can still repeat the @Test annotation on a method if you want to add certain attributes.
+	 Example:
+		@Test
+		public class Test1 {
+			public void test1() {
+			}
+	 
+			@Test(groups = "g1")
+			public void test2() {
+			}
+		}
+	--> will make both test1() and test2() test methods but on top of that, test2() now belongs to the group "g1".
+	
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																IGNORING TESTS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ TestNG lets you ignore all the @Test methods using the new annotation @Ignore:
+	- In a class (or)
+	- In a particular package (or)
+	- In a package and all of its child packages
+
+ When used at the method level @Ignore annotation is functionally equivalent to @Test(enabled=false).
+ Example: Ignore all tests within a class
+		@Ignore
+		public class TestcaseSample {
+		 
+			@Test
+			public void testMethod1() {
+			}
+		 
+			@Test
+			public void testMethod2() {
+			}
+		}
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+															PARALLEL TESTS, CLASSES & METHODS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+The parallel attribute on the <suite> tag in testng.xml can take one of following values:
+
+ 1. Run all your test methods in separate threads:
+	<suite name="My suite" parallel="methods" thread-count="5">
+	
+ 2. Run each class in a separate thread:
+	<suite name="My suite" parallel="classes" thread-count="5">
+	
+ 3. Run each <test> tag in a separate thread:
+	<suite name="My suite" parallel="tests" thread-count="5">
+	
+ 4. Run all the methods in the same instance in the same thread:
+	<suite name="My suite" parallel="instances" thread-count="5">
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																RE-RUNNING FAILED TESTCASES
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ TestNG can automatically retry a test whenever it fails by binding a retry analyzer to a test.
+ 
+ 1. Build an implementation of the interface org.testng.IRetryAnalyzer
+ 2. Bind this implementation to the @Test annotation for e.g., @Test(retryAnalyzer = LocalRetry.class)
+ 
+ 1. -->
+	public class MyRetry implements IRetryAnalyzer {
+ 
+	  private int retryCount = 0;
+	  private static final int maxRetryCount = 3;
+	 
+	  @Override
+	  public boolean retry(ITestResult result) {
+		if (retryCount < maxRetryCount) {
+		  retryCount++;
+		  return true;
+		}
+		return false;
+	  }
+	}
+
+ 2. --> 
+	public class TestclassSample {
+	 
+	  @Test(retryAnalyzer = MyRetry.class)
+	  public void test1() {
+		Assert.fail();
+	  }
+	}
+	
+	OUTPUT:
+	Total tests run: 4, Passes: 0, Failures: 1, Skips: 0, Retries: 3
+	NOTE: 
+	Here the total run count is 4.
+	
+	Run 1	: 	test1 fails.
+	
+	Retry 1	: 	test1 fails.
+	Retry 2	: 	test1 fails.
+	Retry 3	: 	test1 fails.
+	-----------------------
+	Total	:	4 runs
+	-----------------------
+	
+	Note: If the Test passes at 2nd attempt, it'll not retry again upto maxRetryCount (keep retrying only when the Test fails).
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																	ASSERTIONS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Hard Assert:
+ If Assert condition fails, the Test Case will be marked as FAIL, the code beneath the assert statement will be skipped and the next @Test will be run.
+ 
+
+NEW ASSERT:
+Use the Java keyword 'assert' for assertions. If assert fails, the message is printed in console.
+	@Test
+	public void testFail() {
+	  assert "ABC".equals("abc") : "This test failed :-(";
+	}
+
+// TO-LEARN
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+																	REPORTS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Open 'test-output'->index.html
+// TO-LEARN
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+TO-LEARN:
+	Dependencies
+	Running TestNG programmatically
+	Dependency injection
+
+REFERENCE:
+ https://testng.org/doc/documentation-main.html#testng-xml
+ https://www.youtube.com/playlist?list=PLW2TrvplfStfQqgWJmXRTwtspS6RKmtoR
+ http://makeseleniumeasy.com/testng/
+ https://www.toolsqa.com/testng/what-is-testng/
+
